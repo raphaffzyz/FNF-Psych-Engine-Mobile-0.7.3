@@ -1,78 +1,108 @@
 name: Build
 
+# Controls when the action will run.
 on:
-  workflow_call:
-    inputs:
-      name:
-        required: true
-        type: string
-      os:
-        required: true
-        type: string
-      buildArgs:
-        required: true
-        type: string
-      artifactName: 
-        required: true
-        type: string
-      artifactPath:
-        required: true
-        type: string
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-env:
-  HAXE_VERSION: 4.3.6
-  PROJECT_NAME: PsychEngine
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-    name: Build
-    runs-on: ${{ inputs.os }}
+  # This workflow contains a single job called "build"
+  buildAndroid:
+    name: buildAndroid
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        storage-type: [EXTERNAL]
     steps:
       - name: Checkout
         uses: actions/checkout@main
+      
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@main
+        id: setup-ndk 
         with:
-          submodules: true
+          ndk-version: r21e
 
-      - name: Initialize and Update Submodules
-        run: |
-          git submodule update --init --recursive
+      - name: Setup Java JDK
+        uses: actions/setup-java@main
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Setup Haxe
         uses: krdlab/setup-haxe@master
         with:
-          haxe-version: ${{ env.HAXE_VERSION }}
+          haxe-version: 4.3.6
 
-      - name: Setup Android NDK
-        id: setup-ndk
-        uses: nttld/setup-ndk@main
+      - name: Restore Previous Cache
+        id: cache-debug-build-android-restore
+        uses: actions/cache/restore@main
         with:
-          ndk-version: r25c
-          add-to-path: false
+          path: |
+            ~/haxelib
+            ~/.gradle
+            export/release/android/haxe
+            export/release/android/obj
+          key: cache-android-build
 
       - name: Install Libraries
         run: |
-          haxelib install hmm --quiet
-          haxelib run hmm install --quiet
+          haxelib setup ~/haxelib
+          haxelib install hmm 
+          haxelib run hmm install 
 
       - name: Configure Android
-        env:
-          ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           haxelib run lime config ANDROID_SDK $ANDROID_HOME
-          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_ROOT
-          haxelib run lime config JAVA_HOME $JAVA_HOME_17_X64
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME
           haxelib run lime config ANDROID_SETUP true
-
-      - name: Setup SScript (First Run)
-        run: echo "N" | haxelib run lime build ${{ inputs.buildArgs }} --clean
-        continue-on-error: true
-
-      - name: Compile Project (Second Run)
-        run: haxelib run lime build ${{ inputs.buildArgs }} --clean
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+          
+      - name: Compile
+        run: haxelib run lime build android -D ${{ matrix.storage-type }} -final
+        env:
+          cert_pass: nullfunni
+          cert_alias_pass: nullfunni
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
         with:
-          name: ${{ inputs.artifactName }}
-          path: ${{ inputs.artifactPath }}
+          name: androidBuild
+          path: export/release/android/bin/app/build/outputs/apk/release/*.apk
+          
+  Windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.3.6
+
+      - name: Install Libraries
+        run: |
+          haxelib setup C:\haxelib
+          haxelib install hmm --quiet
+          haxelib run hmm install --quiet
+
+      - name: Compile
+        run: haxelib run lime build windows -final
+
+      - name: Upload Artifact
+        if: ${{ success() }}
+        uses: actions/upload-artifact@main
+        with:
+          name: windowsBuild
+          path: export\release\windows\bin\*
           if-no-files-found: error
