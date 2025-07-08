@@ -1,96 +1,114 @@
 {
   "dependencies": [
     {
-      "name": "openfl",
-      "type": "haxelib",
-      "version": "9.1.0"
+      "name": "lime",
+      "type": "git",
+      "dir": null,
+      "ref": "develop",
+      "url": "https://github.com/beihu235/lime"
     },
     {
-      "name": "lime",
+      "name": "openfl",
       "type": "haxelib",
-      "version": "7.9.0"
+      "version": "9.3.2"
     },
     {
       "name": "flixel",
-      "type": "haxelib",
-      "version": "4.11.0"
+      "type": "git",
+      "dir": null,
+      "ref": "dev",
+      "url": "https://github.com/beihu235/flixel"
     },
     {
       "name": "flixel-addons",
       "type": "haxelib",
-      "version": "2.11.0"
+      "version": "3.2.1"
     },
     {
       "name": "flixel-ui",
       "type": "haxelib",
-      "version": "2.3.3"
+      "version": null
+    },
+    {
+      "name": "flixel-tools",
+      "type": "haxelib",
+      "version": "1.5.1"
     },
     {
       "name": "hxcpp",
-      "type": "haxelib",
-      "version": "4.2.1"
-    },
-    {
-      "name": "hxjsonast",
-      "type": "haxelib",
-      "version": "1.0.1"
-    },
-    {
-      "name": "hscript",
-      "type": "haxelib",
-      "version": "2.4.0"
-    },
-    {
-      "name": "hscript-ex",
       "type": "git",
+      "dir": null,
       "ref": "master",
-      "url": "https://github.com/ianharrigan/hscript-ex"
+      "url": "https://github.com/beihu235/hxcpp"
     },
     {
-      "name": "tjson",
-      "type": "haxelib",
-      "version": "1.4.0"
-    },
-    {
-      "name": "format",
-      "type": "haxelib",
-      "version": "3.5.0"
-    },
-    {
-      "name": "hxp",
+      "name": "hxvlc",
       "type": "git",
-      "ref": "master",
-      "url": "https://github.com/openfl/hxp"
-    },
-    {
-      "name": "hxCodec",
-      "type": "git",
-      "ref": "main",
-      "url": "https://github.com/polybiusproxy/hxCodec"
+      "dir": null,
+      "ref": "70e7f5f3e76d526ac6fb8f0e6665efe7dfda589d",
+      "url": "https://github.com/MAJigsaw77/hxvlc"
     },
     {
       "name": "SScript",
       "type": "git",
-      "ref": "master",
-      "url": "https://github.com/raphaffzyz/SScript-7.7.0-PE"
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/beihu235/SScript-8.1.6"
+    },
+    {
+      "name": "hscript",
+      "type": "haxelib",
+      "version": "2.5.0"
+    },
+    {
+      "name": "hxcpp-debug-server",
+      "type": "haxelib",
+      "version": null
+    },
+    {
+      "name": "tjson",
+      "type": "haxelib",
+      "version": null
     },
     {
       "name": "hxdiscord_rpc",
-      "type": "git",
-      "ref": "main",
-      "url": "https://github.com/MAJigsaw77/hxdiscord_rpc"
+      "type": "haxelib",
+      "version": null
     },
     {
       "name": "linc_luajit",
       "type": "git",
+      "dir": null,
       "ref": "master",
-      "url": "https://github.com/AndreiRudenko/linc_luajit"
+      "url": "https://github.com/beihu235/linc_luajit"
     },
     {
       "name": "flxanimate",
       "type": "git",
+      "dir": null,
       "ref": "dev",
       "url": "https://github.com/ShadowMario/flxanimate.git"
+    },
+    {
+      "name": "extension-androidtools",
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/beihu235/extension-androidtools"
+    },
+    {
+      "name": "funkin.vis",
+      "type": "git",
+      "dir": null,
+      "ref": "main",
+      "url": "https://github.com/beihu235/funkVis-FrequencyFixed"
+    },
+    {
+      "name": "grig.audio",
+      "type": "git",
+      "dir": "src",
+      "ref": "57f5d47f2533fd0c3dcd025a86cb86c0dfa0b6d2",
+      "url": "https://gitlab.com/haxe-grig/grig.audio.git"
     }
   ]
 }
