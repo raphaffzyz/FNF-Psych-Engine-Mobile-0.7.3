@@ -42,6 +42,13 @@
       "url": "https://github.com/beihu235/hxcpp"
     },
     {
+      "name": "hxcodec"
+      "type": "git"
+      "dir": "null"
+      "ref": "main"
+      "url": "https://github.com/beihu235/hxCodec"
+    },
+    {
       "name": "hxvlc",
       "type": "git",
       "dir": null,
