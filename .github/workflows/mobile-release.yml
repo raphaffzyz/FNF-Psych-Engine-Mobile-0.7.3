@@ -1,66 +1,82 @@
 name: Mobile + Release
 on: workflow_dispatch
-
 permissions:
   contents: write
-  discussions: write
-
-env:
-  PROJECT_NAME: PsychEngine
-
+  packages: write
 jobs:
-  build:
-    name: ${{ matrix.name }}
+  Android:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - name: Android
-            os: ubuntu-24.04
-            buildArgs: "android -final -D officialBuild"
-            artifactName: androidBuild
-            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
-          - name: iOS
-            os: macos-15
-            buildArgs: "ios -final -nosign -D officialBuild"
-            artifactName: iOSBuild
-            artifactPath: "export/release/ios/build/Release-iphoneos/*.ipa"
-    uses: ./.github/workflows/build.yml
-    with:
-        name: ${{ matrix.name }}
-        os: ${{ matrix.os }}
-        buildArgs: ${{ matrix.buildArgs }}
-        artifactName: ${{ matrix.artifactName }}
-        artifactPath: ${{ matrix.artifactPath }}
+        storage-type: [EXTERNAL]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
 
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@main
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@main
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.3.6
+
+      - name: Install Libraries
+        run: |
+          haxelib install hmm --quiet
+          haxelib run hmm install --quiet
+
+      - name: Configure Android
+        run: |
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT $ANDROID_NDK_HOME
+          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config ANDROID_SETUP true
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+
+      - name: Compile
+        run: haxelib run lime build android -D officialBuild -D ${{ matrix.storage-type }} -final
+        env:
+          cert_pass: nullfunni
+          cert_alias_pass: nullfunni
+
+      - name: Upload Artifact
+        if: ${{ success() }}
+        uses: actions/upload-artifact@main
+        with:
+          name: androidBuild-${{ matrix.storage-type }}
+          path: export/release/android/bin/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
   Releaser:
-    needs: [build]
+    needs: [Android]
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-      - name: Download Android Build
+      - name: Download EXTERNAL Build
         uses: actions/download-artifact@main
         with:
-           name: androidBuild
+           name: androidBuild-EXTERNAL
            path: /home/runner
 
-      - name: Move Android File
-        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/${{ env.PROJECT_NAME }}-Android.apk
-
-      - name: Download iOS Build
-        uses: actions/download-artifact@main
-        with:
-           name: iOSBuild
-           path: ${{ github.workspace }}
-
-      - name: Zip iOS Build For Release
-        run: zip -r /home/runner/${{ env.PROJECT_NAME }}-iOS.zip ${{ github.workspace }}/${{ env.PROJECT_NAME }}.ipa
-
+      - name: Move EXTERNAL File
+        run: mv "/home/runner/NovaFlare Engine-release.apk" "/home/runner/android-EXTERNAL.apk"
+        
       - name: Publish The Release
-        uses: softprops/action-gh-release@v2
+        uses: marvinpinto/action-automatic-releases@latest
         with:
-          name: "0.7.3"
-          tag_name: "0.7.3"
-          prerelease: false
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: true
+          automatic_release_tag: "v1.1.5_debug1"
+          title: "teste de proporção 20:9"
           files: |
             /home/runner/*.apk
-            /home/runner/*.zip
